@@ -23,6 +23,7 @@
 #include "stm32g0xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "control.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -150,8 +151,17 @@ void ADC1_IRQHandler(void)
 if(LL_ADC_IsActiveFlag_EOC(ADC1))
 {
 	LL_ADC_ClearFlag_EOC(ADC1);
-	volatile uint32_t sample = LL_ADC_REG_ReadConversionData32(ADC1);
-	sample++;
+	if(!PROCESS_PARAMS.adc_eoc_count){
+		PROCESS_PARAMS.light_sens_val = LL_ADC_REG_ReadConversionData12(ADC1);
+		PROCESS_PARAMS.adc_eoc_count=1;
+	}else{
+		PROCESS_PARAMS.rotary_sens_val = LL_ADC_REG_ReadConversionData12(ADC1);
+		PROCESS_PARAMS.adc_eoc_count=0;
+	}
+//
+//todo: every some time smaples order gets corrupted and light sample is seen as roatary and that causes flicker in led
+//todo:need toimprove adc order readout accordingly to RM
+//	sample++;
 //	LL_ADC_Get
 }
   /* USER CODE END ADC1_IRQn 0 */
@@ -169,13 +179,30 @@ void TIM3_IRQHandler(void)
 	if(LL_TIM_IsActiveFlag_UPDATE(TIM3))
 		{
 		LL_TIM_ClearFlag_UPDATE(TIM3);
-		LL_TIM_OC_SetCompareCH3(TIM3, 640-1);
+		LL_TIM_OC_SetCompareCH3(TIM3, PROCESS_PARAMS.pwm_timer_fill);
 		}
 
   /* USER CODE END TIM3_IRQn 0 */
   /* USER CODE BEGIN TIM3_IRQn 1 */
 
   /* USER CODE END TIM3_IRQn 1 */
+}
+
+/**
+  * @brief This function handles TIM14 global interrupt.
+  */
+void TIM14_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM14_IRQn 0 */
+	if(LL_TIM_IsActiveFlag_UPDATE(TIM14))
+	{
+		LL_TIM_ClearFlag_UPDATE(TIM14);
+
+	}
+  /* USER CODE END TIM14_IRQn 0 */
+  /* USER CODE BEGIN TIM14_IRQn 1 */
+
+  /* USER CODE END TIM14_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */

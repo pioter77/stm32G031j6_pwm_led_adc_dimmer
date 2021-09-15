@@ -25,7 +25,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "control.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -95,19 +95,22 @@ int main(void)
   MX_GPIO_Init();
   MX_TIM3_Init();
   MX_ADC1_Init();
+  MX_TIM14_Init();
   /* USER CODE BEGIN 2 */
 //timer 16 init here, later throw it into separate function:
 
-  //timer config:
+  //pwm 50kHz timer config:
   LL_TIM_EnableIT_UPDATE(TIM3);
   LL_TIM_CC_EnableChannel(TIM3, LL_TIM_CHANNEL_CH3);
   LL_TIM_EnableCounter(TIM3);
+  //event timebase timr config 1kHz:
+  LL_TIM_EnableIT_UPDATE(TIM14);
+  LL_TIM_CC_EnableChannel(TIM14, LL_TIM_CHANNEL_CH1);
+  LL_TIM_EnableCounter(TIM14);
   //adc config: (single conversion EOC flag ISR)
-  LL_ADC_EnableInternalRegulator(ADC1);
+//  LL_ADC_EnableInternalRegulator(ADC1);
   LL_ADC_EnableIT_EOC(ADC1);
-
   LL_ADC_Enable(ADC1);
-
   LL_mDelay(1);
   /* USER CODE END 2 */
 
@@ -116,7 +119,8 @@ int main(void)
   while (1)
   {
 	  LL_ADC_REG_StartConversion(ADC1);
-	  LL_mDelay(2000);
+	  system_ctrl();
+	  LL_mDelay(10);
 //	  LL_GPIO_TogglePin(LD1_GPIO_Port, LD1_Pin);
     /* USER CODE END WHILE */
 
@@ -143,6 +147,8 @@ void SystemClock_Config(void)
   }
 
   /* Main PLL configuration and activation */
+  LL_RCC_PLL_ConfigDomain_ADC(LL_RCC_PLLSOURCE_HSI, LL_RCC_PLLM_DIV_1, 8, LL_RCC_PLLP_DIV_16);
+  LL_RCC_PLL_EnableDomain_ADC();
   LL_RCC_PLL_ConfigDomain_SYS(LL_RCC_PLLSOURCE_HSI, LL_RCC_PLLM_DIV_1, 8, LL_RCC_PLLR_DIV_2);
   LL_RCC_PLL_Enable();
   LL_RCC_PLL_EnableDomain_SYS();
@@ -166,7 +172,7 @@ void SystemClock_Config(void)
 
   /* Update CMSIS variable (which can be updated also through SystemCoreClockUpdate function) */
   LL_SetSystemCoreClock(64000000);
-  LL_RCC_SetADCClockSource(LL_RCC_ADC_CLKSOURCE_SYSCLK);
+  LL_RCC_SetADCClockSource(LL_RCC_ADC_CLKSOURCE_PLL);
 }
 
 /* USER CODE BEGIN 4 */

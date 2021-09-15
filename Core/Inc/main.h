@@ -73,6 +73,14 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define LIGHT_SENS_Pin LL_GPIO_PIN_7
+#define LIGHT_SENS_GPIO_Port GPIOB
+#define BTN1_Pin LL_GPIO_PIN_2
+#define BTN1_GPIO_Port GPIOA
+#define PWM_OUT_Pin LL_GPIO_PIN_0
+#define PWM_OUT_GPIO_Port GPIOB
+#define ROTARY_SENS_Pin LL_GPIO_PIN_12
+#define ROTARY_SENS_GPIO_Port GPIOA
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */
